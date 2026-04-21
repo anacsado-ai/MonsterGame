@@ -192,29 +192,36 @@
     </div>
 
     <script>
-        const apiKey = ""; 
-        
+        // Lista de comida simplificada (ahora la reacción depende de lo que pulses tú)
         const foods = [
-            { name: "Banana", icon: "🍌", like: true, msg: "Yummy! I like bananas!" },
-            { name: "Green Apple", icon: "🍏", like: false, msg: "Yuck! I don't like green apples!" },
-            { name: "Milkshake", icon: "🥤", like: true, msg: "Yummy! I love sweet milkshakes!" },
-            { name: "Pizza", icon: "🍕", like: true, msg: "Oh yes! Pizza is my favorite!" },
-            { name: "Hamburger", icon: "🍔", like: true, msg: "Yummy! I like big hamburgers!" },
-            { name: "Pasta", icon: "🍝", like: true, msg: "Yummy! Long pasta is fun!" },
-            { name: "Ice Cream", icon: "🍦", like: true, msg: "I love cold ice cream!" },
-            { name: "Yogurt", icon: "🥛", like: true, msg: "Creamy yogurt! Yummy!" },
-            { name: "Eggs", icon: "🥚", like: false, msg: "Yuck! I do not like eggs!" },
-            { name: "Cheese", icon: "🧀", like: true, msg: "Yummy! Yellow cheese!" },
-            { name: "Chocolate", icon: "🍫", like: true, msg: "Chocolate is so sweet!" },
-            { name: "Sandwich", icon: "🥪", like: true, msg: "I love sandwiches!" },
-            { name: "Rice", icon: "🍚", like: true, msg: "Rice is very nice!" },
-            { name: "Potato", icon: "🥔", like: true, msg: "Hot potatoes! Yummy!" },
-            { name: "Fish", icon: "🐟", like: false, msg: "Yuck! I don't like fish!" },
-            { name: "Bread", icon: "🍞", like: true, msg: "Fresh bread! Yummy!" }
+            { name: "Banana", icon: "🍌" },
+            { name: "Green Apple", icon: "🍏" },
+            { name: "Milkshake", icon: "🥤" },
+            { name: "Pizza", icon: "🍕" },
+            { name: "Hamburger", icon: "🍔" },
+            { name: "Pasta", icon: "🍝" },
+            { name: "Ice Cream", icon: "🍦" },
+            { name: "Yogurt", icon: "🥛" },
+            { name: "Eggs", icon: "🥚" },
+            { name: "Cheese", icon: "🧀" },
+            { name: "Chocolate", icon: "🍫" },
+            { name: "Sandwich", icon: "🥪" },
+            { name: "Rice", icon: "🍚" },
+            { name: "Potato", icon: "🥔" },
+            { name: "Fish", icon: "🐟" },
+            { name: "Bread", icon: "🍞" }
+        ];
+
+        const monsterSecrets = [
+            "I eat pizza with my blue toes!",
+            "I sleep in a giant box of chocolate cookies!",
+            "My horns are made of stinky blue cheese!",
+            "I wash my face with orange juice every morning!",
+            "I have a pet spider named Fluffy who loves yogurt!",
+            "I like to dance with bananas in the kitchen!"
         ];
 
         let currentIndex = 0;
-        let isSpeaking = false;
         let isSimulatedFullScreen = false;
 
         function toggleFullScreen() {
@@ -235,57 +242,14 @@
             initGame();
         }
 
-        async function speak(text) {
-            if (isSpeaking) return;
-            isSpeaking = true;
-            document.getElementById('loading-audio').classList.remove('hidden');
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Say in a funny, deep monster voice: ${text}` }] }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
-                        }
-                    })
-                });
-                const result = await response.json();
-                const pcmData = result.candidates[0].content.parts[0].inlineData.data;
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const binaryString = window.atob(pcmData);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-                
-                const wavBuffer = createWavBuffer(bytes.buffer, 24000);
-                const buffer = await audioContext.decodeAudioData(wavBuffer);
-                const source = audioContext.createBufferSource();
-                source.buffer = buffer;
-                source.connect(audioContext.destination);
-                source.start();
-                source.onended = () => {
-                    isSpeaking = false;
-                    document.getElementById('loading-audio').classList.add('hidden');
-                };
-            } catch (error) {
-                isSpeaking = false;
-                document.getElementById('loading-audio').classList.add('hidden');
-            }
-        }
-
-        function createWavBuffer(pcmData, sampleRate) {
-            const buffer = new ArrayBuffer(44 + pcmData.byteLength);
-            const view = new DataView(buffer);
-            const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
-            writeString(0, 'RIFF'); view.setUint32(4, 36 + pcmData.byteLength, true);
-            writeString(8, 'WAVE'); writeString(12, 'fmt ');
-            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-            writeString(36, 'data'); view.setUint32(40, pcmData.byteLength, true);
-            new Uint8Array(buffer, 44).set(new Uint8Array(pcmData));
-            return buffer;
+        // Voz de monstruo local a 0.5 (sin necesidad de internet)
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-GB';
+            utterance.pitch = 0.5; // Tono grave de monstruo
+            utterance.rate = 0.8;  // Velocidad pausada de monstruo
+            window.speechSynthesis.speak(utterance);
         }
 
         function initGame() {
@@ -323,11 +287,14 @@
             document.getElementById('controls').classList.add('hidden');
             document.getElementById('ai-actions').classList.add('hidden');
 
-            reaction.textContent = isLike === food.like ? "😋" : "🥴";
+            // 1. Mostrar el emoticono correspondiente SÍ o SÍ al botón que pulses
+            reaction.textContent = isLike ? "😋" : "🤢";
             reaction.className = "text-8xl opacity-100 transform scale-150 transition-all duration-300";
             
-            updateBubble(food.msg);
-            speak(food.msg);
+            // 2. Hacer que la voz del monstruo coincida perfectamente con el botón
+            const msg = isLike ? `Yummy! I like ${food.name.toLowerCase()}!` : `Yuck! I don't like ${food.name.toLowerCase()}!`;
+            updateBubble(msg);
+            speak(msg);
 
             setTimeout(() => {
                 reaction.className = "text-8xl opacity-0 transform scale-0 transition-all duration-300";
@@ -336,28 +303,12 @@
             }, 3000);
         }
 
-        async function askForSecret() {
-            const food = foods[currentIndex];
-            const loader = document.getElementById('ai-loader');
-            loader.classList.remove('hidden');
-            
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Tell a funny monster secret about ${food.name} for 6 year old kids.` }] }],
-                        systemInstruction: { parts: [{ text: "You are The Colours Monster. Tell a short 1-sentence funny secret in simple English." }] }
-                    })
-                });
-                const result = await response.json();
-                const secret = result.candidates[0].content.parts[0].text;
-                
-                document.getElementById('ai-content').innerText = secret;
-                document.getElementById('ai-modal').classList.remove('hidden');
-                speak(secret);
-            } catch (e) {}
-            loader.classList.add('hidden');
+        function askForSecret() {
+            // Secretos del monstruo pre-cargados para funcionar offline
+            const secret = monsterSecrets[Math.floor(Math.random() * monsterSecrets.length)];
+            document.getElementById('ai-content').innerText = secret;
+            document.getElementById('ai-modal').classList.remove('hidden');
+            speak(`Psst! I have a secret. ${secret}`);
         }
 
         function closeModal() { document.getElementById('ai-modal').classList.add('hidden'); }
