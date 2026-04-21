@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Colours Monster's Lunch - Pro Edition</title>
-    <!-- Bibliotecas externas -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>The Colours Monster's Lunch - Pixar Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Biblioteca de voz ResponsiveVoice (Gratis para uso no comercial) -->
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY_HERE"></script>
-    
     <style>
         :root {
             --pixar-blue: #3b82f6;
@@ -33,81 +27,16 @@
             justify-content: center;
         }
 
-        h1, h2, h3 { font-family: 'Fredoka One', cursive; }
+        h1, h2, h3, .title-font {
+            font-family: 'Fredoka One', cursive;
+        }
 
-        .glass-card {
+        .glass {
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        .slide {
-            display: none;
-            width: 100vw;
-            height: 100vh;
-            padding: 40px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .slide.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .pixar-btn {
-            padding: 15px 35px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: white;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: none;
-            cursor: pointer;
-        }
-
-        .pixar-btn:active { transform: scale(0.95); }
-        .btn-blue { background: var(--pixar-blue); }
-        .btn-green { background: var(--pixar-green); }
-        .btn-red { background: var(--pixar-red); }
-        .btn-purple { background: var(--pixar-purple); }
-
-        .nav-controls {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            gap: 15px;
-            z-index: 1000;
-        }
-
-        .nav-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            cursor: pointer;
-            color: var(--pixar-blue);
-            font-size: 1.5rem;
-            border: none;
         }
 
         .float-anim {
@@ -119,203 +48,331 @@
             50% { transform: translateY(-15px) rotate(2deg); }
         }
 
-        .pseudo-fullscreen {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            z-index: 9999 !important;
-            background: radial-gradient(circle at center, #ffffff, #e2e8f0) !important;
+        .monster-img {
+            width: 280px;
+            height: 280px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
         }
 
         .speech-bubble {
             position: relative;
             background: #fff;
-            border-radius: 1.5em;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 2rem;
+            padding: 20px 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        .food-icon { font-size: 8rem; }
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: #fff;
+            border-bottom: 0;
+            border-left: 0;
+            margin-left: -10px;
+            margin-bottom: -20px;
+        }
+
+        .food-item {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--pixar-purple);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .pseudo-fullscreen {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            z-index: 9999 !important;
+            background: radial-gradient(circle at center, #ffffff, #e2e8f0) !important;
+        }
+
+        .hidden { display: none; }
+
+        .pixar-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .pixar-btn:active { transform: scale(0.9); }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-    <!-- Start Slide -->
-    <div class="slide active" id="slide-0">
-        <div class="text-center">
-            <h1 class="text-7xl text-blue-600 mb-6 drop-shadow-lg leading-tight">Colours Monster!</h1>
-            <p class="text-3xl text-gray-500 mb-12">Interactive Pixar Presentation</p>
-            <div class="float-anim mb-12 text-9xl">👾</div>
-            <button onclick="enterFullAndStart()" class="pixar-btn btn-blue text-2xl px-12 py-5 shadow-2xl">
-                <i class="fa-solid fa-expand"></i> START PRESENTATION
+    <!-- Pantalla de Inicio -->
+    <div id="start-screen" class="text-center z-10 w-full max-w-2xl">
+        <h1 class="text-6xl md:text-7xl text-blue-600 mb-8 drop-shadow-lg leading-tight">The Colours Monster's Lunch!</h1>
+        <div class="flex flex-col gap-8 items-center">
+            <div class="float-anim">
+                <!-- Imagen del repositorio -->
+                <img src="monster.png" alt="The Colours Monster" class="monster-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
+            </div>
+            <button onclick="startGameWithFullscreen()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl px-16 py-6 rounded-full shadow-2xl pixar-btn font-bold">
+                START!
             </button>
+            <p class="text-blue-400 font-semibold animate-pulse text-lg">Click to play in Full Screen!</p>
         </div>
     </div>
 
-    <!-- Intro Slide -->
-    <div class="slide" id="slide-1">
-        <div class="glass-card p-12 flex flex-col md:flex-row gap-12 items-center">
-            <div class="flex-1 text-center border-r border-gray-100 pr-12">
-                <div class="text-9xl float-anim mb-8">👋</div>
-                <button onclick="monsterSpeak('Hello friends! I am the Colours Monster. I am so hungry today!')" class="pixar-btn btn-purple">
-                    <i class="fa-solid fa-volume-high"></i> LISTEN VOICE
-                </button>
+    <!-- Escenario Principal -->
+    <div id="game-container" class="hidden w-full h-full relative flex flex-col items-center justify-center overflow-hidden">
+        
+        <button onclick="toggleFullScreen()" class="absolute top-6 right-6 glass p-4 rounded-full hover:bg-white transition-all z-50 shadow-md">
+            🖥️
+        </button>
+
+        <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4">
+            
+            <!-- Burbuja de Texto -->
+            <div id="speech-bubble" class="speech-bubble glass mb-12 opacity-0 transition-opacity duration-500 w-full max-w-xl">
+                <p id="monster-text" class="text-2xl md:text-3xl font-bold text-gray-700 text-center leading-tight">Hello! I'm The Colours Monster!</p>
             </div>
-            <div class="flex-1">
-                <h2 class="text-5xl text-blue-600 mb-6 font-bold">Hello!</h2>
-                <p class="text-3xl text-gray-700 font-bold">Learn: <br><br><span class="text-green-500">I LIKE</span> 👍<br><span class="text-red-500">I DON'T LIKE</span> 👎</p>
+
+            <!-- Monstruo y Comida -->
+            <div class="flex flex-col md:flex-row items-center gap-12 mb-10">
+                <div class="float-anim">
+                    <img src="monster.png" alt="Monster" class="w-64 h-64 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
+                </div>
+                
+                <div id="food-selection" class="opacity-0 transition-opacity duration-1000">
+                    <!-- Aquí aparece la comida -->
+                </div>
             </div>
+
+            <!-- Reacción -->
+            <div id="reaction-container" class="h-20 mb-6">
+                <div id="reaction-emoji" class="text-8xl opacity-0 transform scale-0 transition-all duration-300">😋</div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex flex-col gap-6 w-full items-center">
+                <div id="ai-actions" class="hidden">
+                    <button id="ai-btn" onclick="askForSecret()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-2xl shadow-lg flex items-center gap-3 text-xl pixar-btn font-bold">
+                        <span>✨</span> Monster Secret
+                        <div id="ai-loader" class="loader hidden"></div>
+                    </button>
+                </div>
+
+                <div id="controls" class="hidden flex flex-col sm:flex-row gap-6 w-full justify-center">
+                    <button onclick="handleResponse(true)" class="bg-green-500 hover:bg-green-600 text-white px-12 py-5 rounded-2xl shadow-xl flex items-center justify-center gap-4 text-2xl pixar-btn w-full sm:w-64 font-bold">
+                        <span>👍</span> I LIKE IT!
+                    </button>
+                    <button onclick="handleResponse(false)" class="bg-red-500 hover:bg-red-600 text-white px-12 py-5 rounded-2xl shadow-xl flex items-center justify-center gap-4 text-2xl pixar-btn w-full sm:w-64 font-bold">
+                        <span>👎</span> I DON'T LIKE IT
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="loading-audio" class="absolute bottom-10 text-gray-500 text-lg font-bold hidden animate-pulse bg-white/80 px-6 py-2 rounded-full shadow-sm">
+            The Monster is speaking... 🔊
         </div>
     </div>
 
-    <!-- Food container -->
-    <div id="food-slides-container"></div>
-
-    <!-- Secret Slide -->
-    <div class="slide" id="slide-secret">
-        <div class="glass-card p-12 flex flex-col md:flex-row gap-12 items-center">
-            <div class="flex-1 text-center border-r border-gray-100 pr-12">
-                <div class="text-9xl float-anim mb-8">✨</div>
-                <button onclick="tellSecret()" class="pixar-btn btn-purple">
-                    <i class="fa-solid fa-volume-high"></i> MONSTER SECRET
-                </button>
-            </div>
-            <div class="flex-1">
-                <h2 class="text-5xl text-blue-600 mb-6 font-bold">A Secret!</h2>
-                <p id="secret-text" class="text-3xl text-gray-700 italic">"Click the button to hear a secret!"</p>
-            </div>
+    <!-- Modal de Secretos -->
+    <div id="ai-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-6">
+        <div class="glass max-w-lg w-full p-10 rounded-[3rem] text-center relative border-4 border-white shadow-2xl">
+            <h3 class="text-4xl text-purple-600 title-font mb-6">✨ Monster Secret!</h3>
+            <div id="ai-content" class="text-xl text-gray-700 leading-relaxed italic mb-8"></div>
+            <button onclick="closeModal()" class="bg-purple-500 hover:bg-purple-600 text-white px-12 py-4 rounded-full font-bold text-xl pixar-btn shadow-lg">Cool!</button>
         </div>
-    </div>
-
-    <!-- Goodbye Slide -->
-    <div class="slide" id="slide-goodbye">
-        <div class="text-center">
-            <div class="text-9xl float-anim mb-8">👋</div>
-            <h2 class="text-7xl text-blue-600 mb-6 font-bold">Goodbye!</h2>
-            <p class="text-3xl text-gray-500 mb-12">See you in the next lesson!</p>
-            <button onclick="monsterSpeak('Goodbye everyone! Have a nice day!')" class="pixar-btn btn-blue text-2xl px-12 py-5 shadow-2xl">
-                <i class="fa-solid fa-heart"></i> SAY GOODBYE
-            </button>
-        </div>
-    </div>
-
-    <!-- Navigation -->
-    <div class="nav-controls">
-        <button class="nav-btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="nav-btn" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
     <script>
-        // Configuración de comidas
+        const apiKey = ""; 
+        
         const foods = [
-            { name: "Banana", icon: "🍌", type: "like", speech: "Yummy! I like bananas!" },
-            { name: "Green Apple", icon: "🍏", type: "dislike", speech: "Yuck! I do not like green apples!" },
-            { name: "Milkshake", icon: "🥤", type: "like", speech: "Yummy! I love milkshakes!" },
-            { name: "Pizza", icon: "🍕", type: "like", speech: "Pizza is my favourite food!" },
-            { name: "Hamburger", icon: "🍔", type: "like", speech: "I love hamburgers!" },
-            { name: "Pasta", icon: "🍝", type: "like", speech: "I like pasta very much!" },
-            { name: "Ice Cream", icon: "🍦", type: "like", speech: "Ice cream is so sweet and cold!" },
-            { name: "Yogurt", icon: "🥛", type: "like", speech: "I like creamy yogurt!" },
-            { name: "Eggs", icon: "🥚", type: "dislike", speech: "No eggs for me, please!" },
-            { name: "Cheese", icon: "🧀", type: "like", speech: "Cheese is delicious!" },
-            { name: "Chocolate", icon: "🍫", type: "like", speech: "Chocolate is my secret treat!" },
-            { name: "Sandwich", icon: "🥪", type: "like", speech: "I like big sandwiches!" },
-            { name: "Rice", icon: "🍚", type: "like", speech: "Rice is very nice!" },
-            { name: "Potato", icon: "🥔", type: "like", speech: "I like potatoes!" },
-            { name: "Fish", icon: "🐟", type: "dislike", speech: "I do not like fish at all!" },
-            { name: "Bread", icon: "🍞", type: "like", speech: "I like fresh bread!" }
+            { name: "Banana", icon: "🍌", like: true, msg: "Yummy! I like bananas!" },
+            { name: "Green Apple", icon: "🍏", like: false, msg: "Yuck! I don't like green apples!" },
+            { name: "Milkshake", icon: "🥤", like: true, msg: "Yummy! I love sweet milkshakes!" },
+            { name: "Pizza", icon: "🍕", like: true, msg: "Oh yes! Pizza is my favorite!" },
+            { name: "Hamburger", icon: "🍔", like: true, msg: "Yummy! I like big hamburgers!" },
+            { name: "Pasta", icon: "🍝", like: true, msg: "Yummy! Long pasta is fun!" },
+            { name: "Ice Cream", icon: "🍦", like: true, msg: "I love cold ice cream!" },
+            { name: "Yogurt", icon: "🥛", like: true, msg: "Creamy yogurt! Yummy!" },
+            { name: "Eggs", icon: "🥚", like: false, msg: "Yuck! I do not like eggs!" },
+            { name: "Cheese", icon: "🧀", like: true, msg: "Yummy! Yellow cheese!" },
+            { name: "Chocolate", icon: "🍫", like: true, msg: "Chocolate is so sweet!" },
+            { name: "Sandwich", icon: "🥪", like: true, msg: "I love sandwiches!" },
+            { name: "Rice", icon: "🍚", like: true, msg: "Rice is very nice!" },
+            { name: "Potato", icon: "🥔", like: true, msg: "Hot potatoes! Yummy!" },
+            { name: "Fish", icon: "🐟", like: false, msg: "Yuck! I don't like fish!" },
+            { name: "Bread", icon: "🍞", like: true, msg: "Fresh bread! Yummy!" }
         ];
 
-        // Inyectar diapositivas
-        const container = document.getElementById('food-slides-container');
-        foods.forEach((food, index) => {
-            const btnClass = food.type === 'like' ? 'btn-green' : 'btn-red';
-            const btnIcon = food.type === 'like' ? 'fa-thumbs-up' : 'fa-thumbs-down';
-            const btnText = food.type === 'like' ? 'I LIKE IT!' : "I DON'T LIKE IT";
-            const feedbackText = food.type === 'like' ? 'text-green-600' : 'text-red-600';
-            const feedbackWord = food.type === 'like' ? 'Yummy!' : 'Yuck!';
-
-            container.innerHTML += `
-                <div class="slide" id="slide-food-${index}">
-                    <div class="glass-card p-12 flex flex-col md:flex-row gap-12 items-center">
-                        <div class="flex-1 text-center border-r border-gray-100 pr-12">
-                            <div class="food-icon float-anim mb-8">${food.icon}</div>
-                            <h3 class="text-5xl text-gray-800 mb-6 font-bold">${food.name}</h3>
-                            <button onclick="monsterSpeak('${food.speech}')" class="pixar-btn ${btnClass} w-full justify-center">
-                                <i class="fa-solid ${btnIcon}"></i> ${btnText}
-                            </button>
-                        </div>
-                        <div class="flex-1 text-center">
-                            <p class="text-6xl font-bold ${feedbackText} mb-6">"${feedbackWord}"</p>
-                            <div class="speech-bubble">
-                                <p class="text-3xl font-bold text-gray-700">"${food.speech}"</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        // Lógica de navegación
-        const slideSequence = ['slide-0', 'slide-1', ...foods.map((_, i) => `slide-food-${i}`), 'slide-secret', 'slide-goodbye'];
         let currentIndex = 0;
-
-        function changeSlide(index) {
-            if (index < 0 || index >= slideSequence.length) return;
-            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-            document.getElementById(slideSequence[index]).classList.add('active');
-            currentIndex = index;
-            window.speechSynthesis.cancel(); // Detener voz al cambiar
-        }
-
-        function nextSlide() { changeSlide(currentIndex + 1); }
-        function prevSlide() { changeSlide(currentIndex - 1); }
+        let isSpeaking = false;
+        let isSimulatedFullScreen = false;
 
         function toggleFullScreen() {
+            const container = document.getElementById('game-container');
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {
-                    document.body.classList.toggle('pseudo-fullscreen');
+                    isSimulatedFullScreen = !isSimulatedFullScreen;
+                    container.classList.toggle('pseudo-fullscreen', isSimulatedFullScreen);
                 });
-            } else if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-
-        function enterFullAndStart() {
-            toggleFullScreen();
-            changeSlide(1);
-        }
-
-        // LÓGICA DE VOZ MEJORADA
-        function monsterSpeak(text) {
-            // Intentar usar ResponsiveVoice si está disponible (mejor calidad)
-            if (window.responsiveVoice) {
-                responsiveVoice.speak(text, "UK English Male", { pitch: 0.8, rate: 0.9 });
             } else {
-                // Fallback a voz de sistema si falla la biblioteca
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-GB';
-                utterance.pitch = 0.7;
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
+                document.exitFullscreen();
+                container.classList.remove('pseudo-fullscreen');
             }
         }
 
-        const monsterSecrets = [
-            "I eat pizza with my blue toes!",
-            "I sleep in a giant box of chocolate cookies!",
-            "My horns are made of stinky blue cheese!",
-            "I wash my face with orange juice every morning!",
-            "I have a pet spider named Fluffy who loves yogurt!",
-            "I like to dance with bananas in the kitchen!"
-        ];
+        function startGameWithFullscreen() {
+            toggleFullScreen();
+            initGame();
+        }
 
-        function tellSecret() {
-            const secret = monsterSecrets[Math.floor(Math.random() * monsterSecrets.length)];
-            document.getElementById('secret-text').innerText = `"${secret}"`;
-            monsterSpeak(`Psst! I have a secret. ${secret}`);
+        async function speak(text) {
+            if (isSpeaking) return;
+            isSpeaking = true;
+            document.getElementById('loading-audio').classList.remove('hidden');
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Say in a funny, deep monster voice: ${text}` }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
+                        }
+                    })
+                });
+                const result = await response.json();
+                const pcmData = result.candidates[0].content.parts[0].inlineData.data;
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const binaryString = window.atob(pcmData);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+                
+                const wavBuffer = createWavBuffer(bytes.buffer, 24000);
+                const buffer = await audioContext.decodeAudioData(wavBuffer);
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start();
+                source.onended = () => {
+                    isSpeaking = false;
+                    document.getElementById('loading-audio').classList.add('hidden');
+                };
+            } catch (error) {
+                isSpeaking = false;
+                document.getElementById('loading-audio').classList.add('hidden');
+            }
+        }
+
+        function createWavBuffer(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.byteLength);
+            const view = new DataView(buffer);
+            const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+            writeString(0, 'RIFF'); view.setUint32(4, 36 + pcmData.byteLength, true);
+            writeString(8, 'WAVE'); writeString(12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+            writeString(36, 'data'); view.setUint32(40, pcmData.byteLength, true);
+            new Uint8Array(buffer, 44).set(new Uint8Array(pcmData));
+            return buffer;
+        }
+
+        function initGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('food-selection').classList.remove('opacity-0');
+                document.getElementById('speech-bubble').classList.remove('opacity-0');
+                nextItem();
+            }, 500);
+        }
+
+        function nextItem() {
+            if (currentIndex >= foods.length) { showSummary(); return; }
+            const food = foods[currentIndex];
+            const foodArea = document.getElementById('food-selection');
+            foodArea.innerHTML = `
+                <div class="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-blue-50 flex flex-col items-center w-64 text-center">
+                    <span class="text-8xl mb-4">${food.icon}</span>
+                    <span class="text-3xl font-bold text-blue-500">${food.name}</span>
+                </div>
+            `;
+
+            const text = `Do you like ${food.name.toLowerCase()}?`;
+            updateBubble(text);
+            speak(text);
+
+            document.getElementById('controls').classList.remove('hidden');
+            document.getElementById('ai-actions').classList.remove('hidden');
+        }
+
+        function handleResponse(isLike) {
+            const food = foods[currentIndex];
+            const reaction = document.getElementById('reaction-emoji');
+            document.getElementById('controls').classList.add('hidden');
+            document.getElementById('ai-actions').classList.add('hidden');
+
+            reaction.textContent = isLike === food.like ? "😋" : "🥴";
+            reaction.className = "text-8xl opacity-100 transform scale-150 transition-all duration-300";
+            
+            updateBubble(food.msg);
+            speak(food.msg);
+
+            setTimeout(() => {
+                reaction.className = "text-8xl opacity-0 transform scale-0 transition-all duration-300";
+                currentIndex++;
+                setTimeout(nextItem, 1000);
+            }, 3000);
+        }
+
+        async function askForSecret() {
+            const food = foods[currentIndex];
+            const loader = document.getElementById('ai-loader');
+            loader.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Tell a funny monster secret about ${food.name} for 6 year old kids.` }] }],
+                        systemInstruction: { parts: [{ text: "You are The Colours Monster. Tell a short 1-sentence funny secret in simple English." }] }
+                    })
+                });
+                const result = await response.json();
+                const secret = result.candidates[0].content.parts[0].text;
+                
+                document.getElementById('ai-content').innerText = secret;
+                document.getElementById('ai-modal').classList.remove('hidden');
+                speak(secret);
+            } catch (e) {}
+            loader.classList.add('hidden');
+        }
+
+        function closeModal() { document.getElementById('ai-modal').classList.add('hidden'); }
+        function updateBubble(text) { document.getElementById('monster-text').textContent = text; }
+
+        function showSummary() {
+            document.getElementById('game-container').innerHTML = `
+                <div class="text-center flex flex-col items-center">
+                    <img src="monster.png" class="monster-img mb-8 float-anim" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
+                    <h2 class="text-6xl text-blue-600 mb-6 font-bold">Great Job!</h2>
+                    <p class="text-3xl text-gray-600 font-bold mb-10">The Colours Monster is happy! Goodbye!</p>
+                    <button onclick="location.reload()" class="bg-blue-500 text-white px-12 py-4 rounded-full text-2xl font-bold pixar-btn shadow-xl">Play Again</button>
+                </div>
+            `;
+            speak("I am full! Thank you friends! Goodbye!");
         }
     </script>
 </body>
