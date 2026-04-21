@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Colours Monster's Lunch - Pixar Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ✅ NUEVO: RESPONSIVE VOICE -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         :root {
             --pixar-blue: #3b82f6;
@@ -68,18 +73,10 @@
             position: absolute;
             bottom: 0;
             left: 50%;
-            width: 0;
-            height: 0;
             border: 20px solid transparent;
             border-top-color: #fff;
-            border-bottom: 0;
-            border-left: 0;
             margin-left: -10px;
             margin-bottom: -20px;
-        }
-
-        .food-item {
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .loader {
@@ -91,240 +88,152 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .pseudo-fullscreen {
             position: fixed !important;
             top: 0 !important; left: 0 !important;
             width: 100vw !important; height: 100vh !important;
             z-index: 9999 !important;
-            background: radial-gradient(circle at center, #ffffff, #e2e8f0) !important;
         }
 
         .hidden { display: none; }
 
-        .pixar-btn {
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
         .pixar-btn:active { transform: scale(0.9); }
     </style>
 </head>
+
 <body class="p-4">
 
-    <!-- Pantalla de Inicio -->
-    <div id="start-screen" class="text-center z-10 w-full max-w-2xl">
-        <h1 class="text-6xl md:text-7xl text-blue-600 mb-8 drop-shadow-lg leading-tight">The Colours Monster's Lunch!</h1>
-        <div class="flex flex-col gap-8 items-center">
-            <div class="float-anim">
-                <!-- Imagen del repositorio -->
-                <img src="monster.png" alt="The Colours Monster" class="monster-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
-            </div>
-            <button onclick="startGameWithFullscreen()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl px-16 py-6 rounded-full shadow-2xl pixar-btn font-bold">
-                START!
-            </button>
-            <p class="text-blue-400 font-semibold animate-pulse text-lg">Click to play in Full Screen!</p>
+<!-- START -->
+<div id="start-screen" class="text-center z-10 w-full max-w-2xl">
+    <h1 class="text-6xl text-blue-600 mb-8">The Colours Monster's Lunch!</h1>
+    <div class="flex flex-col gap-8 items-center">
+        <div class="float-anim">
+            <img src="monster.png" class="monster-img">
         </div>
-    </div>
-
-    <!-- Escenario Principal -->
-    <div id="game-container" class="hidden w-full h-full relative flex flex-col items-center justify-center overflow-hidden">
-        
-        <button onclick="toggleFullScreen()" class="absolute top-6 right-6 glass p-4 rounded-full hover:bg-white transition-all z-50 shadow-md">
-            🖥️
+        <button onclick="startGameWithFullscreen()" class="bg-blue-500 text-white text-3xl px-16 py-6 rounded-full">
+            START!
         </button>
+    </div>
+</div>
 
-        <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4">
-            
-            <!-- Burbuja de Texto -->
-            <div id="speech-bubble" class="speech-bubble glass mb-12 opacity-0 transition-opacity duration-500 w-full max-w-xl">
-                <p id="monster-text" class="text-2xl md:text-3xl font-bold text-gray-700 text-center leading-tight">Hello! I'm The Colours Monster!</p>
-            </div>
+<!-- GAME -->
+<div id="game-container" class="hidden w-full h-full flex flex-col items-center justify-center">
 
-            <!-- Monstruo y Comida -->
-            <div class="flex flex-col md:flex-row items-center gap-12 mb-10">
-                <div class="float-anim">
-                    <img src="monster.png" alt="Monster" class="w-64 h-64 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
-                </div>
-                
-                <div id="food-selection" class="opacity-0 transition-opacity duration-1000">
-                    <!-- Aquí aparece la comida -->
-                </div>
-            </div>
-
-            <!-- Reacción -->
-            <div id="reaction-container" class="h-20 mb-6">
-                <div id="reaction-emoji" class="text-8xl opacity-0 transform scale-0 transition-all duration-300">😋</div>
-            </div>
-
-            <!-- Botones de Acción -->
-            <div class="flex flex-col gap-6 w-full items-center">
-                <div id="ai-actions" class="hidden">
-                    <button id="ai-btn" onclick="askForSecret()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-2xl shadow-lg flex items-center gap-3 text-xl pixar-btn font-bold">
-                        <span>✨</span> Monster Secret
-                        <div id="ai-loader" class="loader hidden"></div>
-                    </button>
-                </div>
-
-                <div id="controls" class="hidden flex flex-col sm:flex-row gap-6 w-full justify-center">
-                    <button onclick="handleResponse(true)" class="bg-green-500 hover:bg-green-600 text-white px-12 py-5 rounded-2xl shadow-xl flex items-center justify-center gap-4 text-2xl pixar-btn w-full sm:w-64 font-bold">
-                        <span>👍</span> I LIKE IT!
-                    </button>
-                    <button onclick="handleResponse(false)" class="bg-red-500 hover:bg-red-600 text-white px-12 py-5 rounded-2xl shadow-xl flex items-center justify-center gap-4 text-2xl pixar-btn w-full sm:w-64 font-bold">
-                        <span>👎</span> I DON'T LIKE IT
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="loading-audio" class="absolute bottom-10 text-gray-500 text-lg font-bold hidden animate-pulse bg-white/80 px-6 py-2 rounded-full shadow-sm">
-            The Monster is speaking... 🔊
-        </div>
+    <div id="speech-bubble" class="speech-bubble mb-8 opacity-0">
+        <p id="monster-text" class="text-2xl font-bold text-center">Hello!</p>
     </div>
 
-    <!-- Modal de Secretos -->
-    <div id="ai-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-6">
-        <div class="glass max-w-lg w-full p-10 rounded-[3rem] text-center relative border-4 border-white shadow-2xl">
-            <h3 class="text-4xl text-purple-600 title-font mb-6">✨ Monster Secret!</h3>
-            <div id="ai-content" class="text-xl text-gray-700 leading-relaxed italic mb-8"></div>
-            <button onclick="closeModal()" class="bg-purple-500 hover:bg-purple-600 text-white px-12 py-4 rounded-full font-bold text-xl pixar-btn shadow-lg">Cool!</button>
-        </div>
+    <div id="food-selection"></div>
+
+    <div id="reaction-emoji" class="text-8xl opacity-0"></div>
+
+    <div id="controls" class="hidden">
+        <button onclick="handleResponse(true)">👍 I LIKE IT</button>
+        <button onclick="handleResponse(false)">👎 I DON'T LIKE IT</button>
     </div>
 
-    <script>
-        // Lista de comida simplificada (ahora la reacción depende de lo que pulses tú)
-        const foods = [
-            { name: "Banana", icon: "🍌" },
-            { name: "Green Apple", icon: "🍏" },
-            { name: "Milkshake", icon: "🥤" },
-            { name: "Pizza", icon: "🍕" },
-            { name: "Hamburger", icon: "🍔" },
-            { name: "Pasta", icon: "🍝" },
-            { name: "Ice Cream", icon: "🍦" },
-            { name: "Yogurt", icon: "🥛" },
-            { name: "Eggs", icon: "🥚" },
-            { name: "Cheese", icon: "🧀" },
-            { name: "Chocolate", icon: "🍫" },
-            { name: "Sandwich", icon: "🥪" },
-            { name: "Rice", icon: "🍚" },
-            { name: "Potato", icon: "🥔" },
-            { name: "Fish", icon: "🐟" },
-            { name: "Bread", icon: "🍞" }
-        ];
+</div>
 
-        const monsterSecrets = [
-            "I eat pizza with my blue toes!",
-            "I sleep in a giant box of chocolate cookies!",
-            "My horns are made of stinky blue cheese!",
-            "I wash my face with orange juice every morning!",
-            "I have a pet spider named Fluffy who loves yogurt!",
-            "I like to dance with bananas in the kitchen!"
-        ];
+<script>
 
-        let currentIndex = 0;
-        let isSimulatedFullScreen = false;
+const foods = [
+    { name: "Banana", icon: "🍌" },
+    { name: "Green Apple", icon: "🍏" },
+    { name: "Milkshake", icon: "🥤" },
+    { name: "Pizza", icon: "🍕" },
+    { name: "Hamburger", icon: "🍔" },
+    { name: "Pasta", icon: "🍝" },
+    { name: "Ice Cream", icon: "🍦" },
+    { name: "Yogurt", icon: "🥛" },
+    { name: "Eggs", icon: "🥚" },
+    { name: "Cheese", icon: "🧀" },
+    { name: "Chocolate", icon: "🍫" },
+    { name: "Sandwich", icon: "🥪" },
+    { name: "Rice", icon: "🍚" },
+    { name: "Potato", icon: "🥔" },
+    { name: "Fish", icon: "🐟" },
+    { name: "Bread", icon: "🍞" }
+];
 
-        function toggleFullScreen() {
-            const container = document.getElementById('game-container');
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {
-                    isSimulatedFullScreen = !isSimulatedFullScreen;
-                    container.classList.toggle('pseudo-fullscreen', isSimulatedFullScreen);
-                });
-            } else {
-                document.exitFullscreen();
-                container.classList.remove('pseudo-fullscreen');
-            }
-        }
+let currentIndex = 0;
 
-        function startGameWithFullscreen() {
-            toggleFullScreen();
-            initGame();
-        }
+function startGameWithFullscreen() {
+    toggleFullScreen();
 
-        // Voz de monstruo local a 0.5 (sin necesidad de internet)
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-GB';
-            utterance.pitch = 0.5; // Tono grave de monstruo
-            utterance.rate = 0.8;  // Velocidad pausada de monstruo
-            window.speechSynthesis.speak(utterance);
-        }
+    // ✅ NUEVO: FRASE AL START
+    speak("I'm the Colours Monster");
 
-        function initGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('game-container').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('food-selection').classList.remove('opacity-0');
-                document.getElementById('speech-bubble').classList.remove('opacity-0');
-                nextItem();
-            }, 500);
-        }
+    initGame();
+}
 
-        function nextItem() {
-            if (currentIndex >= foods.length) { showSummary(); return; }
-            const food = foods[currentIndex];
-            const foodArea = document.getElementById('food-selection');
-            foodArea.innerHTML = `
-                <div class="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-blue-50 flex flex-col items-center w-64 text-center">
-                    <span class="text-8xl mb-4">${food.icon}</span>
-                    <span class="text-3xl font-bold text-blue-500">${food.name}</span>
-                </div>
-            `;
+function toggleFullScreen() {
+    document.documentElement.requestFullscreen().catch(()=>{});
+}
 
-            const text = `Do you like ${food.name.toLowerCase()}?`;
-            updateBubble(text);
-            speak(text);
+// ✅ NUEVO: VOZ RESPONSIVEVOICE
+function speak(text) {
+    responsiveVoice.cancel();
+    responsiveVoice.speak(text, "UK English Male", {
+        pitch: 0.5,
+        rate: 0.8
+    });
+}
 
-            document.getElementById('controls').classList.remove('hidden');
-            document.getElementById('ai-actions').classList.remove('hidden');
-        }
+function initGame() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-container').classList.remove('hidden');
 
-        function handleResponse(isLike) {
-            const food = foods[currentIndex];
-            const reaction = document.getElementById('reaction-emoji');
-            document.getElementById('controls').classList.add('hidden');
-            document.getElementById('ai-actions').classList.add('hidden');
+    setTimeout(() => {
+        document.getElementById('speech-bubble').classList.remove('opacity-0');
+        nextItem();
+    }, 500);
+}
 
-            // 1. Mostrar el emoticono correspondiente SÍ o SÍ al botón que pulses
-            reaction.textContent = isLike ? "😋" : "🤢";
-            reaction.className = "text-8xl opacity-100 transform scale-150 transition-all duration-300";
-            
-            // 2. Hacer que la voz del monstruo coincida perfectamente con el botón
-            const msg = isLike ? `Yummy! I like ${food.name.toLowerCase()}!` : `Yuck! I don't like ${food.name.toLowerCase()}!`;
-            updateBubble(msg);
-            speak(msg);
+function nextItem() {
+    if (currentIndex >= foods.length) return;
 
-            setTimeout(() => {
-                reaction.className = "text-8xl opacity-0 transform scale-0 transition-all duration-300";
-                currentIndex++;
-                setTimeout(nextItem, 1000);
-            }, 3000);
-        }
+    const food = foods[currentIndex];
 
-        function askForSecret() {
-            // Secretos del monstruo pre-cargados para funcionar offline
-            const secret = monsterSecrets[Math.floor(Math.random() * monsterSecrets.length)];
-            document.getElementById('ai-content').innerText = secret;
-            document.getElementById('ai-modal').classList.remove('hidden');
-            speak(`Psst! I have a secret. ${secret}`);
-        }
+    document.getElementById('food-selection').innerHTML = `
+        <div class="text-6xl">${food.icon}</div>
+        <div>${food.name}</div>
+    `;
 
-        function closeModal() { document.getElementById('ai-modal').classList.add('hidden'); }
-        function updateBubble(text) { document.getElementById('monster-text').textContent = text; }
+    const text = `Do you like ${food.name.toLowerCase()}?`;
+    updateBubble(text);
+    speak(text);
 
-        function showSummary() {
-            document.getElementById('game-container').innerHTML = `
-                <div class="text-center flex flex-col items-center">
-                    <img src="monster.png" class="monster-img mb-8 float-anim" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1043/1043444.png';">
-                    <h2 class="text-6xl text-blue-600 mb-6 font-bold">Great Job!</h2>
-                    <p class="text-3xl text-gray-600 font-bold mb-10">The Colours Monster is happy! Goodbye!</p>
-                    <button onclick="location.reload()" class="bg-blue-500 text-white px-12 py-4 rounded-full text-2xl font-bold pixar-btn shadow-xl">Play Again</button>
-                </div>
-            `;
-            speak("I am full! Thank you friends! Goodbye!");
-        }
-    </script>
+    document.getElementById('controls').classList.remove('hidden');
+}
+
+function handleResponse(isLike) {
+    const food = foods[currentIndex];
+    const reaction = document.getElementById('reaction-emoji');
+
+    reaction.textContent = isLike ? "😋" : "🤢";
+    reaction.classList.remove("opacity-0");
+
+    const msg = isLike
+        ? `Yummy! I like ${food.name.toLowerCase()}!`
+        : `Yuck! I don't like ${food.name.toLowerCase()}!`;
+
+    updateBubble(msg);
+    speak(msg);
+
+    setTimeout(() => {
+        reaction.classList.add("opacity-0");
+        currentIndex++;
+        nextItem();
+    }, 3000);
+}
+
+function updateBubble(text) {
+    document.getElementById('monster-text').textContent = text;
+}
+
+</script>
+
 </body>
 </html>
