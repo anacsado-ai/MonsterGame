@@ -213,19 +213,19 @@
         // Frases variadas para respuestas positivas
         const positivePhrases = [
             "Yummy! I like {food}!",
-            "Delicious! {food} is my favorite!",
-            "Oh boy! I really love {food}!",
-            "Tasty! More {food} please!",
+            "Delicious! I like {food}!",
+            "Oh boy! I like {food}!",
+            "Tasty! I like {food}!",
             "Mmm! {food} makes me so happy!"
         ];
 
         // Frases variadas para respuestas negativas
         const negativePhrases = [
             "Yuck! I don't like {food}!",
-            "Ew! Keep that {food} away from me!",
-            "Gross! No {food} for me today!",
+            "Ew! I don't like {food}!",
+            "Oh! I don't like{food}!",
             "Blegh! I really don't like {food}!",
-            "Oh no! {food} makes my tummy ache!"
+            "Oh no! I don't like {food}!"
         ];
 
         let currentIndex = 0;
@@ -302,7 +302,7 @@
             document.getElementById('ai-actions').classList.add('hidden');
 
             // Mostrar el emoticono
-            reaction.textContent = isLike ? "😋" : "🤢";
+            reaction.textContent = isLike ? "😋" : "🥴";
             reaction.className = "text-8xl opacity-100 transform scale-150 transition-all duration-300";
             
             // Elegir una frase aleatoria del array correspondiente
